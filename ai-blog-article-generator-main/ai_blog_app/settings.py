@@ -151,8 +151,8 @@ LOGIN_URL = 'login'
 
 
 # Add these lines to your settings.py
-ASSEMBLYAI_API_KEY = "455d316de306403d8d1114b7b8ac8aa7"
+ASSEMBLYAI_API_KEY = "add your assembly ai api key"
 # GEMINI_API_KEY = "AIzaSyDNCcFiBr_rguGlx2AHTBrAFB82kXj4KeE"
 # OPENROUTER_API_KEY = "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"
-OPENROUTER_API_KEY = "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"
+OPENROUTER_API_KEY = "add your openrouter ai api key"
 
