@@ -1,0 +1,356 @@
+{% extends "base.html" %}
+
+{% block title %}Blog Post Details{% endblock %}
+
+{% block head %}
+
+<style>
+    /* Set Poppins as the primary font for the entire body */
+    body {
+        font-family: 'Poppins', sans-serif;
+    }
+
+
+    /* Enhanced Glassmorphism Effect */
+    .glass {
+        background: rgba(255, 255, 255, 0.6);
+        /* Slightly more transparent */
+        backdrop-filter: blur(25px) saturate(180%);
+        /* Increased blur and saturation */
+        box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.35);
+        /* Stronger shadow */
+        border: 1px solid rgba(255, 255, 255, 0.4);
+        /* Subtle white border */
+    }
+
+
+    .hover\:shadow-3xl:hover {
+        box-shadow: 0 35px 60px -15px rgba(0, 0, 0, 0.4);
+    }
+
+
+    /* Ensure the robot icon has a nice bounce */
+    @keyframes bounce {
+
+
+        0%,
+        100% {
+            transform: translateY(0);
+        }
+
+
+        50% {
+            transform: translateY(-10px);
+        }
+    }
+
+
+    .animate-bounce {
+        animation: bounce 1s infinite ease-in-out;
+    }
+
+
+    /* Style to handle raw text content (assuming it needs line breaks preserved) */
+    .blog-content {
+        white-space: pre-wrap;
+        /* Preserves whitespace and wraps text */
+        line-height: 1.75;
+        font-size: 1.125rem;
+        /* text-lg */
+    }
+</style>
+
+{% endblock %}
+
+{% block content %}
+
+<main class="flex-grow flex justify-center items-start px-4 py-12">
+    <div class="max-w-4xl w-full">
+        <div class="flex justify-center">
+            <h2 class="text-4xl font-extrabold text-indigo-700 mb-10 tracking-tight border-b-2 border-purple-300 pb-1">
+                Blog Post Details
+            </h2>
+        </div>
+
+
+
+
+        <div class="glass rounded-3xl p-10 transition-all duration-300 transform relative overflow-hidden space-y-8">
+
+
+            <div
+                class="absolute top-[-100px] left-[-100px] w-64 h-64 bg-purple-300 opacity-20 rounded-full filter blur-3xl mix-blend-multiply pointer-events-none">
+            </div>
+            <div
+                class="absolute bottom-[-100px] right-[-100px] w-64 h-64 bg-blue-300 opacity-20 rounded-full filter blur-3xl mix-blend-multiply pointer-events-none">
+            </div>
+
+            <section class="relative z-10">
+
+
+                <h1 class="text-4xl md:text-5xl font-extrabold text-purple-700 mb-2 leading-tight">
+                    {{blog_article_detail.youtube_title}}
+                </h1>
+
+                <div
+                    class="flex flex-col sm:flex-row justify-between items-start sm:items-center py-4 border-b border-purple-300 mb-6 space-y-3 sm:space-y-0">
+                    <p class="text-black-800 text-sm italic">
+                        Generated from YouTube on: {{ blog_article_detail.created_at }}
+                    </p>
+
+                    <a href="{{blog_article_detail.youtube_link}}" target="_blank"
+                        class="bg-red-600 hover:bg-red-700 text-white font-semibold py-2 px-4 rounded-lg transition-all shadow-md flex items-center transform hover:scale-[1.03]">
+                        <i class="fab fa-youtube mr-2"></i> View Original Video
+                    </a>
+
+                </div>
+
+                <!-- Speech control buttons -->
+                <div class="flex items-center mt-4">
+
+                    <!-- Left side buttons -->
+                    <div class="flex space-x-4">
+                        <button id="play-btn" type="button"
+                            class="bg-green-600 hover:bg-green-700 text-white font-semibold py-2 px-5 rounded-lg shadow-md">
+                            🔊 Play
+                        </button>
+
+                        <button id="pause-btn" type="button" disabled
+                            class="bg-yellow-500 hover:bg-yellow-600 text-white font-semibold py-2 px-5 rounded-lg shadow-md">
+                            ⏸️ Pause
+                        </button>
+
+                        <button id="resume-btn" type="button" disabled
+                            class="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-5 rounded-lg shadow-md">
+                            ▶️ Resume
+                        </button>
+
+                        <button id="stop-btn" type="button" disabled
+                            class="bg-red-600 hover:bg-red-700 text-white font-semibold py-2 px-5 rounded-lg shadow-md">
+                            ⏹️ Stop
+                        </button>
+                    </div>
+
+                    <!-- Right side buttons -->
+                    <div class="flex items-center ml-auto">
+                        <button onclick="copyContent()" class="text-gray-700 hover:text-black text-2xl"
+                            title="Copy Blog's Content">❐
+                        </button>
+
+                        <form action="{% url 'share_on_whatsapp' %}" method="get" style="display:inline;">
+                            <input type="hidden" name="text"
+                                value="{{ blog_article_detail.youtube_title }}%0A%0A{{ blog_article_detail.generated_content|striptags }}" />
+                            <button type="submit" class="ml-3 p-2 rounded-lg" title="Share on WhatsApp">
+                                <i class="fa-brands fa-whatsapp text-2xl" style="color: #25D366;"></i>
+
+                            </button>
+                        </form>
+
+
+                    </div>
+
+                </div>
+
+
+                <div class="prose max-w-none text-gray-800 blog-content" id="blog-content">
+                    {{blog_article_detail.generated_content|safe}}
+                </div>
+
+
+
+                <div class="flex items-center justify-between mt-10 space-x-4">
+                    <div class="flex space-x-4">
+                        <button onclick="translateContent('hi')"
+                            class="bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-2 px-5 rounded-lg shadow-md transition-all transform hover:scale-[1.03] flex items-center space-x-2">Translate
+                            to हिंदी</button>
+                        <button onclick="translateContent('mr')"
+                            class="bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-2 px-5 rounded-lg shadow-md transition-all transform hover:scale-[1.03] flex items-center space-x-2">Translate
+                            to मराठी</button>
+                        <button onclick="translateContent('en')"
+                            class="bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-2 px-5 rounded-lg shadow-md transition-all transform hover:scale-[1.03] flex items-center space-x-2">Original
+                            English</button>
+                    </div>
+
+
+                    <a href="{% url 'download_blog_qr' blog_article_detail.id %}"
+                        class="bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-2 px-5 rounded-lg shadow-md transition-all transform hover:scale-[1.03] flex items-center space-x-2">
+                        <i class="fas fa-download"></i>
+                        <span>Download Blog's QR to share</span>
+                    </a>
+
+                    <button id="pdf-btn"
+                        class="bg-red-600 hover:bg-red-700 text-white font-semibold py-2 px-5 rounded-lg shadow-md transition-all transform hover:scale-[1.03]">
+                        <a href="{% url 'generate_pdf' blog_article_detail.id %}">Download as PDF</a>
+                    </button>
+
+
+                </div>
+
+
+
+            </section>
+
+            <div id="mindmap-container" class="mt-10 hidden">
+                <div id="mindmap-svg" style="width: 100%; height: 500px; border: 1px solid #eee; border-radius: 12px;">
+                </div>
+            </div>
+
+
+            <div class="pt-6 border-t border-purple-300 text-center relative z-10">
+                <a href="/blog-list" class="transition-colors flex items-center justify-center text-indigo-600">
+                    <i class="fas fa-arrow-left mr-2"></i> Back to All Saved Posts
+                </a>
+            </div>
+
+        </div>
+
+    </div>
+
+</main>
+
+<div id="toast"
+    class="fixed bottom-6 right-6 bg-white px-4 py-2 rounded-md shadow-md border border-gray-300 text-gray-900 font-medium hidden z-50">
+    <span id="toast-message"></span>
+</div>
+
+{% endblock %}
+
+
+{% block scripts %}
+
+<script>
+    const synth = window.speechSynthesis;
+    let utterance = null;
+
+    const playBtn = document.getElementById('play-btn');
+    const pauseBtn = document.getElementById('pause-btn');
+    const resumeBtn = document.getElementById('resume-btn');
+    const stopBtn = document.getElementById('stop-btn');
+
+    function resetButtons() {
+        playBtn.disabled = false;
+        pauseBtn.disabled = true;
+        resumeBtn.disabled = true;
+        stopBtn.disabled = true;
+    }
+
+    playBtn.addEventListener('click', () => {
+        const content = document.getElementById('blog-content').innerText;
+        if (!content.trim()) {
+            alert("No text available to read.");
+            return;
+        }
+
+        if (synth.speaking) {
+            synth.cancel();
+        }
+
+        utterance = new SpeechSynthesisUtterance(content);
+        utterance.rate = 1;
+        utterance.pitch = 1;
+        utterance.lang = 'en-US';
+
+        utterance.onstart = () => {
+            playBtn.disabled = true;
+            pauseBtn.disabled = false;
+            resumeBtn.disabled = true;
+            stopBtn.disabled = false;
+        };
+
+        utterance.onend = () => {
+            resetButtons();
+        };
+
+        utterance.onerror = (e) => {
+            console.error('Speech synthesis error', e);
+            resetButtons();
+        };
+
+        synth.speak(utterance);
+    });
+
+    pauseBtn.addEventListener('click', () => {
+        if (synth.speaking && !synth.paused) {
+            synth.pause();
+            pauseBtn.disabled = true;
+            resumeBtn.disabled = false;
+        }
+    });
+
+    resumeBtn.addEventListener('click', () => {
+        if (synth.paused) {
+            synth.resume();
+            resumeBtn.disabled = true;
+            pauseBtn.disabled = false;
+        }
+    });
+
+    stopBtn.addEventListener('click', () => {
+        if (synth.speaking) {
+            synth.cancel();
+            resetButtons();
+        }
+    });
+
+    // Initialize buttons state on page load
+    resetButtons();
+</script>
+
+
+
+<script>
+    let originalContent = document.getElementById('blog-content').innerHTML;
+
+    async function translateContent(lang) {
+        if (lang === 'en') {
+            document.getElementById('blog-content').innerHTML = originalContent;
+            return;
+        }
+        const content = document.getElementById('blog-content').innerText;
+        try {
+            const response = await fetch('/translate', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ text: content, target_lang: lang }),
+            });
+            if (!response.ok) {
+                alert('Translation failed: ' + response.statusText);
+                return;
+            }
+            const data = await response.json();
+            if (data.translated_text) {
+                document.getElementById('blog-content').innerText = data.translated_text;
+            } else {
+                alert('Translation failed: ' + (data.error || 'Unknown error'));
+            }
+        } catch (error) {
+            alert('Error during translation request: ' + error.message);
+            console.error(error);
+        }
+    }
+</script>
+
+<script>
+    function showToast(message) {
+        const toast = document.getElementById("toast");
+        const msg = document.getElementById("toast-message");
+
+        msg.innerText = message;
+        toast.classList.remove("hidden");
+
+        setTimeout(() => {
+            toast.classList.add("hidden");
+        }, 1500);
+    }
+
+    function copyContent() {
+        const content = document.getElementById("blog-content").innerText;
+
+        navigator.clipboard.writeText(content)
+            .then(() => showToast("Blog's content copied!"))
+            .catch(() => showToast("Failed to copy blog content."));
+    }
+</script>
+
+
+{% endblock %}

@@ -1,0 +1,303 @@
+{% extends "base.html" %}
+
+{% block title %}Recently Deleted Blogs{% endblock %}
+
+{% block head %}
+
+<style>
+    body {
+        font-family: 'Poppins', sans-serif;
+    }
+
+    .glass {
+        background: rgba(255, 255, 255, 0.6);
+        backdrop-filter: blur(25px) saturate(180%);
+        box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.35);
+        border: 1px solid rgba(255, 255, 255, 0.4);
+    }
+
+    .hover\:shadow-3xl:hover {
+        box-shadow: 0 35px 60px -15px rgba(0, 0, 0, 0.4);
+    }
+
+    .folder-icon {
+        color: #9CA3AF;
+    }
+
+    .dark .folder-icon {
+        color: #3B82F6 !important;
+    }
+
+    .empty-title,
+    .empty-desc {
+        color: #4B5563;
+    }
+
+    .dark .empty-title,
+    .dark .empty-desc {
+        color: #000 !important;
+    }
+
+    @keyframes bounce {
+        0%, 100% {
+            transform: translateY(0);
+        }
+        50% {
+            transform: translateY(-10px);
+        }
+    }
+
+    .animate-bounce {
+        animation: bounce 1s infinite ease-in-out;
+    }
+
+    /* Checkbox styling */
+    .blog-checkbox {
+        width: 20px;
+        height: 20px;
+        cursor: pointer;
+        accent-color: #6366f1;
+    }
+
+    .selected-blog {
+        background-color: rgba(129, 140, 248, 0.1) !important;
+        border-color: #6366f1 !important;
+    }
+
+    .action-buttons {
+        display: flex;
+        gap: 10px;
+        align-items: center;
+    }
+
+    .btn-restore, .btn-delete {
+        padding: 6px 12px;
+        border-radius: 6px;
+        border: none;
+        cursor: pointer;
+        font-size: 14px;
+        transition: all 0.3s ease;
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+    }
+
+    .btn-restore {
+        background-color: #4f46e5;
+        color: white;
+    }
+
+    .btn-restore:hover {
+        background-color: #4338ca;
+    }
+
+    .btn-delete {
+        background-color: #ef4444;
+        color: white;
+    }
+
+    .btn-delete:hover {
+        background-color: #dc2626;
+    }
+
+    .btn-delete:disabled {
+        background-color: #d1d5db;
+        cursor: not-allowed;
+    }
+
+    .bulk-actions {
+        display: flex;
+        gap: 10px;
+        align-items: center;
+        margin-bottom: 20px;
+        padding: 15px;
+        background-color: rgba(129, 140, 248, 0.1);
+        border-radius: 10px;
+        display: none;
+    }
+
+    .bulk-actions.active {
+        display: flex;
+    }
+
+    .selected-count {
+        font-weight: 600;
+        color: #4f46e5;
+    }
+
+    .select-all-container {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        margin-bottom: 15px;
+        padding: 10px;
+        background-color: #f3f4f6;
+        border-radius: 8px;
+    }
+
+    .select-all-checkbox {
+        width: 20px;
+        height: 20px;
+        cursor: pointer;
+        accent-color: #6366f1;
+    }
+
+    .dark .select-all-container label {
+    color: red !important;
+    font-weight: bold;
+    }
+
+</style>
+
+{% endblock %}
+
+{% block content %}
+
+<main class="flex-grow flex justify-center items-start px-4 py-12">
+    <div class="max-w-4xl w-full">
+        <h2 class="text-4xl font-extrabold text-purple-700 text-center mb-10 tracking-tight border-b-2 border-purple-300 inline-block pb-1 mx-auto block">
+            Your Deleted Blog Posts
+        </h2>
+
+        <div class="glass rounded-3xl p-10 transition-all duration-300 transform hover:shadow-3xl relative overflow-hidden space-y-6">
+            <div class="absolute top-[-100px] left-[-100px] w-64 h-64 bg-purple-300 opacity-20 rounded-full filter blur-3xl mix-blend-multiply pointer-events-none"></div>
+            <div class="absolute bottom-[-100px] right-[-100px] w-64 h-64 bg-blue-300 opacity-20 rounded-full filter blur-3xl mix-blend-multiply pointer-events-none"></div>
+
+            <section class="relative z-10">
+                <form id="deleteForm" method="POST" action="{% url 'permanent_delete_blogs' %}">
+                    {% csrf_token %}
+                    
+                    {% if blogs %}
+                        <!-- Select All Checkbox -->
+                        <div class="select-all-container">
+                            <input type="checkbox" id="selectAll" class="select-all-checkbox">
+                            <label for="selectAll" style="cursor: pointer; margin: 0;">Select All</label>
+                        </div>
+
+                        <!-- Bulk Actions Bar -->
+                        <div class="bulk-actions" id="bulkActions">
+                            <span class="selected-count">
+                                <span id="selectedCount">0</span> selected
+                            </span>
+                            <button type="button" class="btn-delete" id="permanentDeleteBtn" onclick="confirmPermanentDelete()">
+                                <i class="fas fa-trash"></i>Permanently Delete Selected
+                            </button>
+                        </div>
+
+                        <!-- Blog Items -->
+                        <div class="space-y-4">
+                            {% for blog in blogs reversed %}
+                                <div class="blog-item bg-white bg-opacity-90 border border-gray-200 p-6 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-[1.01] hover:border-indigo-400 flex items-center justify-between">
+                                    <div class="flex items-start gap-4 flex-1">
+                                        <input type="checkbox" name="blog_ids" value="{{ blog.id }}" class="blog-checkbox" onchange="updateCheckboxState()">
+                                        <div class="flex-1">
+                                            <h3 class="text-xl font-bold text-indigo-700 mb-1">
+                                                <i class="fas fa-file-alt mr-2 text-purple-500"></i>{{ blog.youtube_title }}
+                                            </h3>
+                                            <p class="text-gray-600 italic text-sm">
+                                                Deleted at: {{ blog.deleted_at|date:"Y-m-d H:i" }}
+                                            </p>
+                                        </div>
+                                    </div>
+                                    <div class="action-buttons">
+                                        <a href="{% url 'restore_blog' blog.id %}" class="btn-restore">
+                                            <i class="fas fa-undo"></i>Restore
+                                        </a>
+                                    </div>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <div class="text-center p-12">
+                            <i class="fas fa-ban text-4xl text-red-600 mb-4"></i>
+                            <p class="text-xl font-semibold empty-title">You have no deleted blog posts yet!</p>
+                            <p class="empty-desc mt-2">
+                                Generate your first blog post from a YouTube link on the
+                                <a href="/" class="text-indigo-600 hover:underline font-medium">main page</a>.
+                            </p>
+                        </div>
+                    {% endif %}
+                </form>
+            </section>
+        </div>
+    </div>
+</main>
+
+{% endblock %}
+
+{% block scripts %}
+<script>
+    // Select/Deselect all checkboxes
+    document.getElementById('selectAll').addEventListener('change', function() {
+        const checkboxes = document.querySelectorAll('.blog-checkbox');
+        checkboxes.forEach(checkbox => {
+            checkbox.checked = this.checked;
+        });
+        updateCheckboxState();
+    });
+
+    // Update checkbox state and bulk actions visibility
+    function updateCheckboxState() {
+        const checkboxes = document.querySelectorAll('.blog-checkbox');
+        const selectAllCheckbox = document.getElementById('selectAll');
+        const bulkActions = document.getElementById('bulkActions');
+        const selectedCount = document.getElementById('selectedCount');
+        const permanentDeleteBtn = document.getElementById('permanentDeleteBtn');
+
+        // Count selected checkboxes
+        const selectedBlogs = Array.from(checkboxes).filter(cb => cb.checked);
+        const count = selectedBlogs.length;
+
+        // Update selected count display
+        selectedCount.textContent = count;
+
+        // Show/hide bulk actions
+        if (count > 0) {
+            bulkActions.classList.add('active');
+            permanentDeleteBtn.disabled = false;
+        } else {
+            bulkActions.classList.remove('active');
+            permanentDeleteBtn.disabled = true;
+        }
+
+        // Update "Select All" checkbox state
+        const allChecked = selectedBlogs.length === checkboxes.length && checkboxes.length > 0;
+        const someChecked = selectedBlogs.length > 0 && selectedBlogs.length < checkboxes.length;
+        selectAllCheckbox.checked = allChecked;
+        selectAllCheckbox.indeterminate = someChecked;
+
+        // Highlight selected blog items
+        const blogItems = document.querySelectorAll('.blog-item');
+        blogItems.forEach((item, index) => {
+            if (checkboxes[index].checked) {
+                item.classList.add('selected-blog');
+            } else {
+                item.classList.remove('selected-blog');
+            }
+        });
+    }
+
+    // Confirm and submit permanent delete
+    function confirmPermanentDelete() {
+        const selectedCount = document.getElementById('selectedCount').textContent;
+        
+        if (selectedCount === '0') {
+            alert('Please select at least one blog to permenantly delete.');
+            return;
+        }
+
+        const confirmed = confirm(
+            `Are you sure you want to permanently delete ${selectedCount} blog ? This action cannot be undone.`
+        );
+
+        if (confirmed) {
+            document.getElementById('deleteForm').submit();
+        }
+    }
+
+    // Initialize on page load
+    document.addEventListener('DOMContentLoaded', function() {
+        updateCheckboxState();
+    });
+</script>
+{% endblock %}

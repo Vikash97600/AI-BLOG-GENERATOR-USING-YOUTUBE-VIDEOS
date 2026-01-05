@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Blog Post Pdf</title>
+    <style>
+        body { font-family: Arial, sans-serif; background: #fff; color: #333; margin: 20px; }
+        h1 { color: #7257fa; font-size: 2em; margin-bottom: 10px; }
+        .info { font-size: 0.95em; color: #555; margin-bottom: 12px; }
+        .content-section { border-bottom: 1px solid #ccc; padding-bottom: 16px; margin-bottom: 16px; }
+        .main-content { font-size: 1.1em; line-height: 1.5; }
+    </style>
+</head>
+<body>
+    <h1>{{ blog_article_detail.youtube_title }}</h1>
+    <div class="info">
+        Generated from YouTube on: {{ blog_article_detail.created_at }}
+    </div>
+    <div class="content-section main-content">
+        {{ blog_article_detail.generated_content|safe }}
+    </div>
+</body>
+</html>
