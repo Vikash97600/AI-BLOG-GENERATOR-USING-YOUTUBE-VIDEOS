@@ -1,8 +1,10 @@
 **AI Blog Generator using YouTube Video Link**
 
+
 <p align="center">
   <img src="Ai logo.png" alt="AI logo" width="200">
 </p>
+
 
 📖 Introduction
 The **AI Blog Generator** is a web-based application designed to streamline the content creation process by leveraging Artificial Intelligence. It addresses the challenge of manually converting video content into text by automating the transformation of YouTube videos into structured, professional blog posts.
